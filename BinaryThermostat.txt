@@ -1,0 +1,34 @@
+//LED Pin Variables
+int ledPins[] = {2,3,4,5,6,7,8,9,10}; // Initialize array of led pins
+int temperaturePin = 0;  //Initialize temperature pin
+
+void setup()
+{
+  for(int i = 0; i < 9; i++){  //set led pins as outputs
+  pinMode(ledPins[i],OUTPUT);
+  }
+}
+void loop()
+{
+  float tempC = getVoltage(temperaturePin);  //getting the voltage reading from the temperature sensor
+  tempC = (tempC - .5) * 100;          //converting from 10 mv per degree wit 500 mV offset
+  float tempF = tempC*1.8+32;         //convert C to F
+  int abstempF = fabs(tempF);         // take abs value of temp in F
+  if(tempF <0)                        //light red pin if temp in F is negative
+    digitalWrite(ledPins[8],HIGH);
+  else
+    digitalWrite(ledPins[8],LOW);    //do not light red pin if temp in F is positive
+  for(int i = 7; i >= 0; i--){       
+  if (pow(2,i) <= abstempF) {        //converts decimal to binary one digit at a time (assumes temp in F cannot be above 127)
+    digitalWrite(ledPins[i], HIGH);
+    abstempF=abstempF-pow(2,i);
+  }
+  else
+    digitalWrite(ledPins[i], LOW);
+  }
+  delay(1000);
+}
+float getVoltage(int pin){
+ return (analogRead(pin) * .004882814); //converting from a 0 to 1024 digital range
+                                        // to 0 to 5 volts (each 1 reading equals ~ 5 millivolts
+}
